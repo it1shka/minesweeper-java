@@ -109,7 +109,7 @@ public class WindowDisplay implements Display.DisplayImpl {
 
                     // digits
                     case '1' -> Color.BLUE;
-                    case '2' -> new Color(1, 110, 30);
+                    case '2' -> new Color(2, 110, 30);
                     case '3' -> Color.RED;
                     case '4' -> Color.GRAY;
 
