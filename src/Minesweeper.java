@@ -61,24 +61,13 @@ public class Minesweeper {
         }
     }
 
-    public void render() {
+    public int getBoardSize() {
+        return boardSize;
+    }
+
+    public char[][] getBoard() {
         prepareBoard();
-        Utils.clearConsole();
-
-        printHorizontalCoords();
-        printHorizontalSeparator();
-
-        for(var i = 0; i < boardSize; i++) {
-            System.out.printf("%d|", i);
-            for (final var cell : board[i]) {
-                System.out.print(cell);
-            }
-            System.out.printf("|%d", i);
-            System.out.println();
-        }
-
-        printHorizontalSeparator();
-        printHorizontalCoords();
+        return board;
     }
 
     public enum GameStatus {
@@ -114,23 +103,6 @@ public class Minesweeper {
     }
 
     // PRIVATE FUNCTIONS
-
-    private void printHorizontalCoords() {
-        var builder = new StringBuilder();
-        builder.append("  ");
-        for(var i = 0; i < boardSize; i++) {
-            var chr = (char)(i + '0');
-            builder.append(chr);
-        }
-        var line = builder.toString();
-        System.out.println(line);
-    }
-
-    private void printHorizontalSeparator() {
-        System.out.print("  ");
-        System.out.print("-".repeat(boardSize));
-        System.out.println("  ");
-    }
 
     private void generateBombs() {
         var possible = new ArrayList<int[]>();

@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -20,11 +19,6 @@ public class Utils {
             chosen.add(elem);
         }
         return chosen;
-    }
-
-    public static void clearConsole(){
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
     }
 
 }
