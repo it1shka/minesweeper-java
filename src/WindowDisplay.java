@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class WindowDisplay implements Display.DisplayImpl {
 
@@ -10,36 +12,54 @@ public class WindowDisplay implements Display.DisplayImpl {
     private JButton[][] cells;
     private Minesweeper minesweeper;
     private boolean isFinished;
+    private boolean defuseMode;
 
     @Override public void renderLoop(Minesweeper minesweeper) {
         this.minesweeper = minesweeper;
         isFinished = false;
+        defuseMode = true;
         boardSize = minesweeper.getBoardSize();
         createWindow();
-        createPanel();
+        listenToKeyboard();
+        createBoardPanel();
         createBoard();
         window.setVisible(true);
         updateWindow();
     }
 
-    public void createWindow() {
+    private void createWindow() {
         window = new JFrame("Minesweeper");
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         final var realSize = cellSize * boardSize;
         window.setSize(realSize, realSize);
     }
 
-    public void createPanel() {
+    private void toggleDefuseMode() {
+        defuseMode = !defuseMode;
+    }
+
+    private void listenToKeyboard() {
+        window.addKeyListener(new KeyAdapter() {
+            @Override public void keyPressed(KeyEvent e) {
+                if (e.isShiftDown()) toggleDefuseMode();
+            }
+        });
+        window.setFocusable(true);
+        window.requestFocusInWindow();
+    }
+
+    private void createBoardPanel() {
         panel = new JPanel();
         final var layout = new GridLayout(boardSize, boardSize);
         panel.setLayout(layout);
         layout.setVgap(1);
         layout.setHgap(1);
         panel.setBackground(Color.LIGHT_GRAY);
-        window.add(panel);
+        window.getContentPane().add(panel);
     }
 
-    public void createBoard() {
+
+    private void createBoard() {
         cells = new JButton[boardSize][boardSize];
         final var font = new Font("Arial", Font.BOLD, 24);
         for (var row = 0; row < boardSize; row++) {
@@ -57,10 +77,23 @@ public class WindowDisplay implements Display.DisplayImpl {
     }
 
     private void onButtonClick(int row, int col) {
+        window.requestFocusInWindow();
         if (isFinished) return;
-        minesweeper.defuse(row, col);
+        if (defuseMode) minesweeper.defuse(row, col);
+        else minesweeper.toggleFlag(row, col);
         updateWindow();
-        isFinished = minesweeper.checkStatus() != Minesweeper.GameStatus.IN_PROCESS;
+        final var status = minesweeper.checkStatus();
+        isFinished = status != Minesweeper.GameStatus.IN_PROCESS;
+        if (isFinished) {
+            createResultPopup(status == Minesweeper.GameStatus.WON);
+        }
+    }
+
+    private void createResultPopup(boolean won) {
+        final var message = won
+                ? "You won!"
+                : "You lost!";
+        JOptionPane.showMessageDialog(window, message);
     }
 
     private void updateWindow() {
@@ -71,7 +104,7 @@ public class WindowDisplay implements Display.DisplayImpl {
                 final var value = board[row][col];
                 cell.setForeground(switch (value) {
                     case '#' -> Color.ORANGE;
-                    case 'F' -> Color.GREEN;
+                    case 'F' -> Color.MAGENTA;
                     case 'B' -> Color.RED;
 
                     // digits
